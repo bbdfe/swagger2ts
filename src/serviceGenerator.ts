@@ -252,6 +252,7 @@ class ServiceGenerator {
     this.finalPath = '';
     this.config = {
       projectName: 'api',
+      requestOptionType: '{[key: string]: any}',
       templatesFolder: join(__dirname, '../', 'templates'),
       ...config,
     };
@@ -301,9 +302,10 @@ class ServiceGenerator {
       const finalPath = join(basePath, this.config.projectName);
 
       this.finalPath = finalPath;
+
       glob
         .sync(`${finalPath}/**/*`)
-        .filter((ele) => !ele.includes('_deperated'))
+        .filter((ele) => !ele.includes('_deperated')&&ele!==`${finalPath}/index.ts`)
         .forEach((ele) => {
           rimraf.sync(ele);
         });
@@ -329,6 +331,7 @@ class ServiceGenerator {
         template,
         {
           namespace: this.config.namespace,
+          requestOptionType: this.config.requestOptionType,
           requestImportStatement: this.config.requestImportStatement,
           disableTypeCheck: false,
           ...tp,
@@ -340,11 +343,11 @@ class ServiceGenerator {
     if (prettierError.includes(true)) {
       Log(`🚥 格式化失败，请检查 service 文件内可能存在的语法错误`);
     }
-    // 生成 index 文件
-    this.genFileFromTemplate(`index.ts`, 'serviceIndex', {
-      list: this.classNameList,
-      disableTypeCheck: false,
-    });
+    // // 生成 index 文件
+    // this.genFileFromTemplate(`index.ts`, 'serviceIndex', {
+    //   list: this.classNameList,
+    //   disableTypeCheck: false,
+    // });
 
     // 打印日志
     Log(`✅ 成功生成 service 文件`);
@@ -357,7 +360,8 @@ class ServiceGenerator {
 
   public getTypeName(operationObject: OperationObject) {
     const namespace = this.config.namespace ? `${this.config.namespace}.` : '';
-    const customeTypeName = this.config?.hook?.customTypeName || this.config?.hook?.customFunctionName;
+    const customeTypeName =
+      this.config?.hook?.customTypeName || this.config?.hook?.customFunctionName;
 
     return resolveTypeName(
       `${namespace}${customeTypeName?.(operationObject) ?? operationObject.operationId}Params`,
@@ -522,7 +526,7 @@ class ServiceGenerator {
         if (genParams.length) {
           this.classNameList.push({
             fileName: className,
-            controllerName: className
+            controllerName: className,
           });
         }
         return {
@@ -647,9 +651,9 @@ class ServiceGenerator {
             const isDirectObject = ((p.schema || {}).type || p.type) === 'object';
             const refList = ((p.schema || {}).$ref || p.$ref || '').split('/');
             const ref = refList[refList.length - 1];
-            const deRefObj = (Object.entries(this.openAPIData.components && this.openAPIData.components.schemas || {}).find(
-              ([k]) => k === ref,
-            ) || []) as any;
+            const deRefObj = (Object.entries(
+              (this.openAPIData.components && this.openAPIData.components.schemas) || {},
+            ).find(([k]) => k === ref) || []) as any;
             const isRefObject = (deRefObj[1] || {}).type === 'object';
             return {
               ...p,
@@ -744,14 +748,15 @@ class ServiceGenerator {
         }
 
         if (props.length > 0) {
-          data && data.push([
-            {
-              typeName: `${this.getFuncationName({ ...operationObject, method, path: p })}Params`,
-              type: 'Record<string, any>',
-              parent: undefined,
-              props: [props],
-            },
-          ]);
+          data &&
+            data.push([
+              {
+                typeName: `${this.getFuncationName({ ...operationObject, method, path: p })}Params`,
+                type: 'Record<string, any>',
+                parent: undefined,
+                props: [props],
+              },
+            ]);
         }
       });
     });

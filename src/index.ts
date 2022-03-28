@@ -1,5 +1,3 @@
-/* eslint-disable global-require */
-/* eslint-disable import/no-dynamic-require */
 import http from 'http';
 import https from 'https';
 import fetch from 'node-fetch';
@@ -16,7 +14,7 @@ const getImportStatement = (requestLibPath: string) => {
   if (requestLibPath) {
     return `import request from '${requestLibPath}'`;
   }
-  return `import { request } from "umi"`;
+  return `import { request } from "@/utils/request"`;
 };
 
 export type GenerateServiceProps = {
@@ -62,6 +60,10 @@ export type GenerateServiceProps = {
    * 模板文件的文件路径
    */
   templatesFolder?: string;
+  /**
+   * 请求类型配置，默认为 {[key: string]: any}
+   */
+  requestOptionType?: string;
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {

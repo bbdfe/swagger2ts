@@ -1,5 +1,6 @@
-// @ts-ignore
-/* eslint-disable */
+/**
+ * auto generated code
+ */
 {{ requestImportStatement }}
 
 {% for api in list -%}
@@ -53,7 +54,7 @@ files
 {%- endif -%}
 {%- endif -%}
 {{ "," if api.body or api.hasParams or api.file }}
-  options {{ "?: {[key: string]: any}" if genType === "ts" }}
+  options {{ "?:"+requestOptionType if genType === "ts" }}
 ) {
   {% if api.params and api.params.path -%}
   const { {% for param in api.params.path %}'{{ param.name }}': {{ param.alias }}, {% endfor %}
@@ -91,12 +92,12 @@ files
   {% endif -%}
 
   {% if api.hasPathVariables or api.hasApiPrefix -%}
-  return request{{ ("<" + api.response.type + ">") | safe if genType === "ts" }}(`{{ api.path | safe }}`, {
+  return await request(`{{ api.path | safe }}`, {
   {% else -%}
-  return request{{ ("<" + api.response.type + ">") | safe if genType === "ts" }}('{{ api.path }}', {
+  return await request('{{ api.path }}', {
   {% endif -%}
     method: '{{ api.method | upper }}',
-    {%- if api.hasHeader and api.body.mediaType not in ("multipart/form-data", "application/x-www-form-urlencoded")%}
+    {%- if api.hasHeader and api.body.mediaType in ("multipart/form-data", "application/x-www-form-urlencoded")%}
     headers: {
       {%- if api.body.mediaType %}
       'Content-Type': '{{ api.body.mediaType | safe }}',
@@ -130,7 +131,7 @@ files
     data: body,
     {%- endif %}
     {%- endif %}
-    ...(options || {}),
+    ...options
   });
 }
 
