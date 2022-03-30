@@ -55,7 +55,14 @@ const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-  const typeLastName = typeName.split('/').pop().split('.').pop();
+  let typeLastName;
+  // 泛型的情况
+  if(typeName?.indexOf('`')){
+    typeLastName=typeName.split('`').shift().split('.').pop();
+  }else{
+    typeLastName = typeName.split('/').pop().split('.').pop();
+  }
+  
 
   const name = typeLastName
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
