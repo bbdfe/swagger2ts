@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import glob from 'glob';
 import * as nunjucks from 'nunjucks';
+import * as changeCase from 'change-case'
 import type {
   ContentObject,
   OpenAPIObject,
@@ -326,8 +327,14 @@ class ServiceGenerator {
     this.getServiceTP().forEach((tp) => {
       // 根据当前数据源类型选择恰当的 controller 模版
       const template = 'serviceController';
+       // changeCase.noCase("testString"); //=> "test string"
+      // changeCase.paramCase("test string");//=> "test-string"
+      const noCaseClassName=changeCase.noCase(tp.className);
+      const paramClassName=changeCase.paramCase(noCaseClassName)
+      
       const hasError = this.genFileFromTemplate(
-        this.getFinalFileName(`${tp.className}.ts`),
+        // this.getFinalFileName(`${paramClassName}.ts`),
+        `${paramClassName}.ts`,
         template,
         {
           namespace: this.config.namespace,
