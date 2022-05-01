@@ -92,10 +92,11 @@ files
   {% endif -%}
 
   {% if api.hasPathVariables or api.hasApiPrefix -%}
-  return await request(`{{ api.path | safe }}`, {
+  return await request({
   {% else -%}
-  return await request('{{ api.path }}', {
+  return await request({
   {% endif -%}
+    url:`{{ api.path }}`,
     method: '{{ api.method | upper }}',
     {%- if api.hasHeader and api.body.mediaType in ("multipart/form-data", "application/x-www-form-urlencoded")%}
     headers: {
