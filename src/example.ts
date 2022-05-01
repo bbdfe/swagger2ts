@@ -7,6 +7,6 @@ generateService({
   schemaPath:'https://localhost:44399/swagger/v1/swagger.json',
   projectName: '',
   serversPath: './servers',
-  requestOptionType: 'BBDFE.IRequestOption',
+  requestOptionType: 'BBDFE.TRequestOption',
   apiPrefix: 'API_PREFIX',
 });
